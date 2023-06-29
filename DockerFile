@@ -1,0 +1,10 @@
+FROM openjdk:11
+VOLUME /tmp
+EXPOSE 8080
+ARG JAR_FILE=target/user-service-1.0.0.jar
+ADD ${JAR_FILE} user-service.jar
+ENTRYPOINT ["java","-jar","/user-service.jar"]
+
+FROM mysql
+
+ADD init.sql /docker-entrypoint-initdb.d

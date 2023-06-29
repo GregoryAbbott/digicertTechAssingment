@@ -1,0 +1,39 @@
+version: '3.8'
+
+networks:
+  user-service:
+
+services:
+  db:
+    container_name: userdb-container
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'userdb'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '13306:3306'
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysql", "-h", "localhost", "-P", "3306", "-u", "root", "--password=password", "-e", "select 1", "userdb" ]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    networks:
+      - user-service
+
+
+  app:
+    container_name: user-service-container
+    build:
+      context: .
+      dockerfile: DockerFile
+    ports:
+      - "18080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - user-service
+
